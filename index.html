@@ -17,7 +17,6 @@
         .compact-drop { border: 1px dashed rgba(255,255,255,0.1); transition: all 0.3s ease; }
         .shimmer { background: linear-gradient(90deg, #fff, #555, #fff); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shine 4s linear infinite; }
         @keyframes shine { to { background-position: 200% center; } }
-        /* Added for the processing feel */
         .loading-pulse { animation: pulse 1.5s infinite; color: var(--accent); font-weight: bold; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     </style>
@@ -62,14 +61,14 @@
                 <span class="text-[9px] font-bold text-[#ff007a] uppercase tracking-widest">Infiltration Brief</span>
                 <button id="download-txt" class="text-[9px] text-gray-400 hover:text-white border border-white/10 px-2 py-1 rounded transition uppercase">Export Brief (.txt)</button>
             </div>
-            <pre id="output" class="text-[11px] text-gray-400 font-mono leading-relaxed overflow-x-auto"></pre>
+            <pre id="output" class="text-[11px] text-gray-400 font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap"></pre>
         </div>
 
         <footer class="text-center space-y-3 pt-4">
             <div class="p-3 rounded-xl border border-white/5 bg-white/[0.02]">
                 <p class="text-[8px] uppercase tracking-widest text-gray-600 font-bold mb-1">Privacy Protocols</p>
                 <p class="text-[9px] text-gray-500 leading-relaxed">
-                    <b>Stateless Operation:</b> All job data is processed in real-time RAM and purged immediately upon output. 
+                    <b>Stateless Operation:</b> Data is processed in real-time RAM and purged immediately.
                 </p>
             </div>
             <p class="text-[8px] uppercase tracking-[0.8em] text-gray-800 font-bold">SOUTHLI ECOSYSTEM</p>
@@ -77,10 +76,9 @@
     </div>
 
     <script>
-        // UPDATE THIS after Vercel deployment
-        const API_URL = "https://your-vercel-project.vercel.app/api"; 
+        // Use your actual Vercel URL here
+        const API_URL = "https://langa-app.vercel.app/api"; 
 
-        // --- DOM Elements ---
         const scanBtn = document.getElementById('scan-btn');
         const resultsBox = document.getElementById('results-box');
         const output = document.getElementById('output');
@@ -89,17 +87,17 @@
         const fileLabel = document.getElementById('file-label');
         const bulkBtn = document.getElementById('bulk-btn');
 
-        // --- Single Scan Logic ---
+        // SINGLE SCAN
         scanBtn.onclick = async () => {
-            const url = document.getElementById('url-input').value;
-            if(!url) return alert("System requires a Target URL.");
+            const urlValue = document.getElementById('url-input').value;
+            if(!urlValue) return alert("System requires a Target URL.");
 
             resultsBox.classList.remove('hidden');
-            output.innerHTML = '<span class="loading-pulse">>> INFILTRATING SYSTEM... BYPASSING GATEWAY...</span>';
+            output.innerHTML = '<span class="loading-pulse">>> INFILTRATING SYSTEM... BYPASSING GATEWAY... ANALYZING TARGET...</span>';
 
             try {
                 const formData = new FormData();
-                formData.append('url', url);
+                formData.append('url', urlValue);
 
                 const res = await fetch(`${API_URL}/scan-single`, { 
                     method: 'POST', 
@@ -109,31 +107,44 @@
                 const data = await res.json();
                 output.innerText = JSON.stringify(data, null, 4);
             } catch (e) {
-                output.innerText = ">> CRITICAL ERROR: Connection to Brain lost.";
+                output.innerText = ">> CRITICAL ERROR: Connection to Brain lost. Ensure Vercel is awake.";
             }
         };
 
-        // --- Batch Logic ---
+        // BATCH PROCESSING
         dropZone.onclick = () => fileInput.click();
         fileInput.onchange = () => { if(fileInput.files[0]) fileLabel.innerText = fileInput.files[0].name; };
 
         bulkBtn.onclick = async () => {
             if(!fileInput.files[0]) return alert("No CSV detected.");
             bulkBtn.innerText = "PROCESSING...";
+            resultsBox.classList.remove('hidden');
+            output.innerHTML = '<span class="loading-pulse">>> EXECUTING MASS OPS... PARSING MANIFEST...</span>';
+
             try {
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
-                const res = await fetch(`${https://langa-app.vercel.app/}/process-csv`, { method: 'POST', body: formData });
+
+                const res = await fetch(`${API_URL}/process-csv`, { 
+                    method: 'POST', 
+                    body: formData 
+                });
+
                 const blob = await res.blob();
                 const a = document.createElement('a');
                 a.href = window.URL.createObjectURL(blob);
                 a.download = `Langa_Batch_${Date.now()}.csv`;
                 a.click();
+                
+                output.innerText = ">> BATCH COMPLETE. DOWNLOAD TRIGGERED.";
                 bulkBtn.innerText = "BATCH COMPLETE";
-            } catch (e) { alert("Batch Failed."); bulkBtn.innerText = "BATCH"; }
+            } catch (e) { 
+                output.innerText = ">> BATCH ERROR: Failed to process manifest.";
+                bulkBtn.innerText = "BATCH"; 
+            }
         };
 
-        // --- Export txt ---
+        // EXPORT TXT
         document.getElementById('download-txt').onclick = () => {
             const blob = new Blob([output.innerText], { type: 'text/plain' });
             const a = document.createElement('a');
