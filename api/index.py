@@ -1,12 +1,16 @@
-import pandas as pd
 from fastapi import FastAPI, UploadFile, File, Form
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-import io, json, re, os, requests
-from google import genai
+# ... other imports
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # SECURITY: Allow your Netlify/Vercel front-end to talk to this API
 app.add_middleware(
     CORSMiddleware,
