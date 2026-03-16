@@ -1,5 +1,5 @@
 fastapi
-pandas
-python-multipart
 requests
+pandas
 google-genai
+python-multipart
