@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LANGA | Intelligence Layer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #050505; --accent: #ff007a; --glass: rgba(255, 255, 255, 0.02); }
+        body { background-color: var(--bg); color: white; font-family: 'Plus Jakarta Sans', sans-serif; background-image: radial-gradient(circle at 50% -20%, #1a1a1a 0%, #050505 80%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .glass-vault { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; }
+        .input-field { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
+        .input-field:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(255, 0, 122, 0.1); outline: none; }
+        .btn-primary { background: linear-gradient(90deg, #ff007a 0%, #ff8e53 100%); font-weight: 800; letter-spacing: 0.1em; transition: all 0.3s ease; }
+        .btn-primary:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(255, 0, 122, 0.4); }
+        .compact-drop { border: 1px dashed rgba(255,255,255,0.1); transition: all 0.3s ease; }
+        .compact-drop:hover { border-color: var(--accent); background: rgba(255,0,122,0.02); }
+        .shimmer { background: linear-gradient(90deg, #fff, #555, #fff); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shine 4s linear infinite; }
+        @keyframes shine { to { background-position: 200% center; } }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-xl w-full p-6 space-y-8">
+        <div class="text-center space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/5 bg-white/5">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#ff007a] animate-pulse"></span>
+                <span class="text-[9px] uppercase tracking-[0.3em] text-gray-400 font-bold">Infiltration Mode Active</span>
+            </div>
+            <h1 class="text-6xl font-extrabold tracking-tighter shimmer">LANGA<span class="text-white">.</span></h1>
+            <p class="text-xs text-gray-500 font-light tracking-wide uppercase">Tactical Intelligence Layer // v1.0.4</p>
+        </div>
+
+        <div class="glass-vault p-6 space-y-4">
+            <div class="flex items-center justify-between px-1">
+                <span class="text-[10px] font-black uppercase tracking-widest text-[#ff007a]">Target Recon</span>
+                <span class="text-[9px] text-gray-600 font-mono">256-BIT ENCRYPTION</span>
+            </div>
+            <div class="flex flex-col gap-3">
+                <input type="text" id="url-input" placeholder="Paste The URL Of Your Job Post Here..." class="input-field w-full p-4 rounded-xl text-sm text-gray-200">
+                <button id="scan-btn" class="btn-primary w-full py-4 rounded-xl text-[10px] uppercase text-white">Execute Scan</button>
+            </div>
+        </div>
+
+        <div class="glass-vault p-4 flex items-center justify-between gap-4">
+            <div class="flex flex-col">
+                <span class="text-[9px] font-black uppercase tracking-widest text-gray-500">Mass Ops</span>
+                <span class="text-[10px] text-gray-400 font-medium italic">Batch Mode</span>
+            </div>
+            <div id="drop-zone" class="compact-drop flex-grow flex items-center justify-center py-3 rounded-xl cursor-pointer group">
+                <input type="file" id="csv-file" class="hidden" accept=".csv">
+                <span id="file-label" class="text-[10px] text-gray-600 group-hover:text-gray-300">Drop Manifest</span>
+            </div>
+            <button id="bulk-btn" class="px-4 py-3 border border-white/10 rounded-xl text-[9px] font-bold uppercase hover:bg-white/5 transition">Batch</button>
+        </div>
+
+        <div id="results-box" class="hidden glass-vault p-6 border-[#ff007a]/20 space-y-4">
+            <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                <span class="text-[9px] font-bold text-[#ff007a] uppercase tracking-widest">Infiltration Brief</span>
+                <button id="download-txt" class="text-[9px] text-gray-400 hover:text-white border border-white/10 px-2 py-1 rounded transition uppercase">
+                    Export Brief (.txt)
+                </button>
+            </div>
+            <pre id="output" class="text-[11px] text-gray-400 font-mono leading-relaxed overflow-x-auto"></pre>
+        </div>
+
+        <footer class="text-center space-y-3 pt-4">
+            <div class="p-3 rounded-xl border border-white/5 bg-white/[0.02]">
+                <p class="text-[8px] uppercase tracking-widest text-gray-600 font-bold mb-1">Privacy Protocols</p>
+                <p class="text-[9px] text-gray-500 leading-relaxed">
+                    <b>Stateless Operation:</b> All job data is processed in real-time RAM and purged immediately upon output. We retain zero logs, zero job links, and zero candidate metadata. Your infiltration is 100% invisible.
+                </p>
+            </div>
+            <p class="text-[8px] uppercase tracking-[0.8em] text-gray-800 font-bold">SOUTHLI ECOSYSTEM</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_URL = "https://langa-llw4.onrender.com";
+
+        // DOM Elements
+        const scanBtn = document.getElementById('scan-btn');
+        const bulkBtn = document.getElementById('bulk-btn');
+        const resultsBox = document.getElementById('results-box');
+        const output = document.getElementById('output');
+        const fileInput = document.getElementById('csv-file');
+        const dropZone = document.getElementById('drop-zone');
+        const fileLabel = document.getElementById('file-label');
+
+        const updateStatus = (msg) => { output.innerText = `>> ${msg}`; };
+
+        // 1. Single Scan Logic
+        scanBtn.onclick = async () => {
+            const url = document.getElementById('url-input').value;
+            if(!url) return alert("System requires a Target URL.");
+            resultsBox.classList.remove('hidden');
+            updateStatus("ESTABLISHING SECURE TUNNEL...\nANALYZING TARGET DATA...");
+
+            try {
+                const bodyData = new FormData();
+                bodyData.append('url', url);
+                const res = await fetch(`${API_URL}/scan-single`, { method: 'POST', body: bodyData });
+                if (!res.ok) throw new Error(`Server Error: ${res.status}`);
+                const data = await res.json();
+                output.innerText = JSON.stringify(data, null, 4);
+            } catch (e) {
+                updateStatus(`INFILTRATION FAILED: ${e.message}\nEnsure Render backend is 'Live'.`);
+            }
+        };
+
+        // 2. Batch Logic
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = () => { if(fileInput.files[0]) fileLabel.innerText = fileInput.files[0].name; };
+
+        bulkBtn.onclick = async () => {
+            if(!fileInput.files[0]) return alert("No CSV detected.");
+            bulkBtn.innerText = "PROCESSING...";
+            try {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                const res = await fetch(`${API_URL}/process-csv`, { method: 'POST', body: formData });
+                const blob = await res.blob();
+                const a = document.createElement('a');
+                a.href = window.URL.createObjectURL(blob);
+                a.download = `Langa_Brief_${Date.now()}.csv`;
+                a.click();
+                bulkBtn.innerText = "BATCH COMPLETE";
+            } catch (e) { alert("Batch Failed."); bulkBtn.innerText = "BATCH ERROR"; }
+        };
+
+        // 3. Export .txt
+        document.getElementById('download-txt').onclick = () => {
+            const blob = new Blob([output.innerText], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = "Langa_Report.txt";
+            a.click();
+        };
+    </script>
+</body>
+</html>
