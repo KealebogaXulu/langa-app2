@@ -102,3 +102,6 @@ async def process_csv(file: UploadFile = File(...)):
     final_df.to_csv(output_path, index=False)
 
     return FileResponse(output_path, filename="Langa_Batch.csv")
+@app.get("/api/health")
+def health():
+    return {"status": "LANGA online"}
